@@ -43,6 +43,15 @@ class StatsHelper {
             ->where('created_at', '<=', $this->right_bound_parsed);
     }
 
+    public function uniqueClicks() {
+        $stats = DB::table('clicks')
+            ->where('link_id', $this->link_id)
+            ->select(DB::raw("count(DISTINCT ip) as uniques"))
+            ->first();
+
+        return $stats->uniques;
+    }
+
     public function getDayStats() {
         // Return stats by day from the last 30 days
         // date => x

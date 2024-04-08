@@ -55,7 +55,7 @@
 
     <div class="row bottom-padding">
         <div class="col-md-8">
-            <h4>Traffic over Time</h4> (total: {{ $link->clicks }})
+            <h4>Traffic over Time</h4> (total: {{ $link->clicks }}) (unique: {{ $uniques }})
             <canvas id="dayChart"></canvas>
         </div>
         <div class="col-md-4">

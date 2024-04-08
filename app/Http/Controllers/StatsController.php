@@ -69,12 +69,14 @@ class StatsController extends Controller {
             }
         }
 
+        $uniques = $stats->uniqueClicks();
         $day_stats = $stats->getDayStats();
         $country_stats = $stats->getCountryStats();
         $referer_stats = $stats->getRefererStats();
 
         return view('link_stats', [
             'link' => $link,
+            'uniques' => $uniques,
             'day_stats' => $day_stats,
             'country_stats' => $country_stats,
             'referer_stats' => $referer_stats,
