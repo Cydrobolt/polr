@@ -14,10 +14,19 @@ class AlterLinkClicksToInteger extends Migration
      */
     public function up()
     {
-        Schema::table('links', function (Blueprint $table)
-        {
-            $table->integer('clicks')->change();
-        });
+        // Execute raw SQL statements on PostgreSQL
+        $db_driver = DB::connection()->getDriverName();
+        if($db_driver == 'pgsql') {
+            DB::statement('ALTER TABLE links ALTER COLUMN clicks DROP DEFAULT');
+            DB::statement('ALTER TABLE links ALTER COLUMN clicks TYPE INT USING (clicks::INT)');
+            DB::statement('ALTER TABLE links ALTER COLUMN clicks SET DEFAULT 0');
+        }
+        else {
+            Schema::table('links', function (Blueprint $table)
+            {
+                $table->integer('clicks')->change();
+            });
+        }
     }
 
     /**

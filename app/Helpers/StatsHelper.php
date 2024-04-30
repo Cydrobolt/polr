@@ -47,9 +47,19 @@ class StatsHelper {
         // Return stats by day from the last 30 days
         // date => x
         // clicks => y
+
+        // Run a different SQL query depending on database driver
+        $db_driver = DB::connection()->getDriverName();
+        if ($db_driver == 'pgsql') {
+            $created_at = "to_char(created_at, 'yyyy-mm-dd')";
+        }
+        else {
+            $created_at = "DATE_FORMAT(created_at, '%Y-%m-%d')";
+        }
+
         $stats = $this->getBaseRows()
-            ->select(DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d') AS x, count(*) AS y"))
-            ->groupBy(DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d')"))
+            ->select(DB::raw("$created_at AS x, count(*) AS y"))
+            ->groupBy(DB::raw($created_at))
             ->orderBy('x', 'asc')
             ->get();
 
