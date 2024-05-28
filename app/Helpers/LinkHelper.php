@@ -110,36 +110,45 @@ class LinkHelper {
         return $pr_str;
     }
 
-    static public function findSuitableEnding() {
-        /**
-         * Provided an in-use link ending (string),
-         * find the next available base-32/62 ending.
-         * @return string
-         */
+    public static function findSuitableEnding() {
         $base = env('POLR_BASE');
-
+    
+        // Get the latest non-custom link
         $link = Link::where('is_custom', 0)
             ->orderBy('created_at', 'desc')
             ->first();
-
-        if ($link == null) {
-            $base10_val = 0;
-            $base_x_val = 0;
-        }
-        else {
-            $latest_link_ending = $link->short_url;
-            $base10_val = BaseHelper::toBase10($latest_link_ending, $base);
-            $base10_val++;
-        }
-
-
+    
+        $base10_val = $link ? BaseHelper::toBase10($link->short_url, $base) + 1 : 0;
+    
+        // Batch size for checking multiple endings at once
+        $batchSize = 100;
         $base_x_val = null;
-
-        while (LinkHelper::linkExists($base_x_val) || $base_x_val == null) {
-            $base_x_val = BaseHelper::toBase($base10_val, $base);
-            $base10_val++;
+    
+        while ($base_x_val === null) {
+            // Generate a batch of potential endings
+            $potential_endings = [];
+            for ($i = 0; $i < $batchSize; $i++) {
+                $potential_endings[] = BaseHelper::toBase($base10_val + $i, $base);
+            }
+    
+            // Check which of these potential endings are already in use
+            $existing_endings = Link::whereIn('short_url', $potential_endings)
+                ->pluck('short_url')
+                ->toArray();
+    
+            // Find the first potential ending that is not in use
+            foreach ($potential_endings as $ending) {
+                if (!in_array($ending, $existing_endings)) {
+                    $base_x_val = $ending;
+                    break;
+                }
+            }
+    
+            // Increment base10_val by batch size
+            $base10_val += $batchSize;
         }
-
+    
         return $base_x_val;
     }
+    
 }
