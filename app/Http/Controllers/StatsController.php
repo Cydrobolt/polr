@@ -68,7 +68,6 @@ class StatsController extends Controller {
                     The right date bound must be more recent than the left bound.');
             }
         }
-
         $day_stats = $stats->getDayStats();
         $country_stats = $stats->getCountryStats();
         $referer_stats = $stats->getRefererStats();
